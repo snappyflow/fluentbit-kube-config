@@ -99,7 +99,7 @@ function add_geoip_info(tag, timestamp, record)
         returnval = 0
     else
         returnval = 1
-        cmd = io.popen("sh /etc/td-agent-bit/geoip.sh " .. record["host"])
+        cmd = io.popen("sh /etc/td-agent-bit/nginx/geoip.sh " .. record["host"])
         for line in cmd:lines() do
                size, metric = split(line)
                record[metric[1]] = metric[2]
