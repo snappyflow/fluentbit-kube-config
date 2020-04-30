@@ -1,5 +1,5 @@
 ipaddr=$1
-mmdb_raw=$(mmdblookup --file /etc/td-agent-bit/GeoLite2-City.mmdb --ip "$ipaddr")
+mmdb_raw=$(mmdblookup --file /etc/td-agent-bit/nginx/GeoLite2-City.mmdb --ip "$ipaddr")
 
 city_raw=$(echo "$mmdb_raw" | grep -A9 "\"city\":")
 city=$(echo "$city_raw" | grep -A1 "\"en\":" | sed '$!d' | awk -F\" '{print $2}')
