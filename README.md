@@ -1,0 +1,1 @@
+# fluentbit-kube-config
