@@ -1,3 +1,7 @@
+function toNumber_millisecond(tag, timestamp, record)
+    record["time"] = tonumber(record["time"])
+    return 1, timestamp, record
+end
 function generate_index_name(tag, timestamp, record)
     returnval = -1
     seperator = "-"
@@ -151,4 +155,3 @@ function split(string_to_split)
     end
     return count,words
 end
-
