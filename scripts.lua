@@ -1,3 +1,4 @@
+JSON = require("JSON")
 function toNumber_millisecond(tag, timestamp, record)
     record["time"] = tonumber(record["time"])
     return 1, timestamp, record
@@ -22,6 +23,57 @@ function generate_index_name(tag, timestamp, record)
     elseif record["profileId"] ~=nil and record["cluster_name"] ~= nil and record["namespace_name"] == "kube-system" then
         record["index_name"] = "log" .. seperator .. record["profileId"] .. seperator .. record["cluster_name"]
         returnval = 1
+    end
+    return returnval, timestamp, record
+end
+
+function mysql_error_transform(tag, timestamp, record)
+    if record["level"] == nil or record["level"] == '' then
+	record["level"] = "info"
+        returnval = 1
+    end
+    record["level"] = string.lower(record["level"])
+    return 1, timestamp, record
+end
+
+
+function apache_record_transform(tag,timestamp, record)
+    opSplit = {}
+    i = 0
+    returnval = 0
+    if record["level"] ~= nil then
+    for token in string.gmatch(record["level"], '([^:]+)') do
+        opSplit[i] = token
+        i = i +1
+    end
+    if  opSplit[1] ~= nil then
+        record["level"] = opSplit[1]
+        if record["level"] == "warn" then
+           record["level"] = "warning"
+        end
+        returnval = 1
+    end
+    end
+    opSplit = {}
+    i = 0
+    if record["id"] ~= nil then
+    for token in string.gmatch(record["id"], '([^: ]+)') do
+        opSplit[i] = token
+        i = i +1
+    end
+    record["id"] = nil
+    record["pid"] = opSplit[0]
+    record["tid"] = opSplit[2]
+    returnval = 1
+    end
+    return returnval,timestamp, record
+end
+
+function convert_resptime_us_to_ms_apache(tag,timestamp,record)
+    returnval = 0
+    if record["response_time"] ~= nil and record["response_time"] ~= '' then 
+       record["response_time"] = record["response_time"] / 1000
+       returnval = 1
     end
     return returnval, timestamp, record
 end
@@ -123,7 +175,7 @@ function add_geoip_info(tag, timestamp, record)
         returnval = 0
     else
         returnval = 1
-        cmd = io.popen("sh /etc/td-agent-bit/nginx/geoip.sh " .. record["host"])
+        cmd = io.popen("sh /etc/td-agent-bit/geoip/geoip.sh " .. record["host"])
         for line in cmd:lines() do
                size, metric = split(line)
                record[metric[1]] = metric[2]
@@ -175,4 +227,43 @@ function split(string_to_split)
         count = count + 1
     end
     return count,words
+end
+
+local function merge_log(record)
+  if record["message"] then
+    local buff = {}
+    local str = record["message"]
+
+    -- init positions
+    local pos, end_pos = 1, str.len(str)
+
+    local first_line = str:match("[^\n]+")
+    pos = str.len(first_line) + 1
+    first_line_msg = str:match("[^\\n]+")
+    table.insert(buff,first_line_msg)
+
+    -- trying to recursively JSON parse the rest of the string to extract the value of 'log'
+    while(pos < end_pos)
+    do
+      local success, value, next_i = pcall(JSON.grok_one, JSON, str, pos, {})
+      if success then
+        table.insert(buff, value["log"])
+        pos = next_i
+      else
+        -- if we can't parse as JSON, just append the rest of the line into the buffer
+        table.insert(buff, string.sub(str, pos))
+        break
+      end
+    end
+
+    msg = table.concat(buff, "")
+    -- Removing \n character
+    record["message"] = msg:gsub("\n"," ")
+  end
+
+  return record
+end
+
+function multiline_process(tag, timestamp, record)
+  return 1, timestamp, merge_log(record)
 end
