@@ -2,15 +2,30 @@ function toNumber_millisecond(tag, timestamp, record)
     record["time"] = tonumber(record["time"])
     return 1, timestamp, record
 end
+
+-- function generate_index_name(tag, timestamp, record)
+--     returnval = -1
+--     seperator = "-"
+--     if record["type"] ~=nil and record["profileId"] ~=nil and record["_tag_projectName"] ~=nil then
+--         record["index_name"] = record["type"] .. seperator .. record["profileId"] .. seperator .. record["_tag_projectName"]
+--         returnval = 1
+--     end
+--     return returnval, timestamp, record
+-- end
+
 function generate_index_name(tag, timestamp, record)
     returnval = -1
     seperator = "-"
     if record["type"] ~=nil and record["profileId"] ~=nil and record["_tag_projectName"] ~=nil then
         record["index_name"] = record["type"] .. seperator .. record["profileId"] .. seperator .. record["_tag_projectName"]
         returnval = 1
+    elseif record["profileId"] ~=nil and record["cluster_name"] ~= nil and record["namespace_name"] == "kube-system" then
+        record["index_name"] = "log" .. seperator .. record["profileId"] .. seperator .. record["cluster_name"]
+        returnval = 1
     end
     return returnval, timestamp, record
 end
+
 function addtimeGMToffset_millisecond(tag, timestamp, record)
     utcNow = os.time()
     offset = os.difftime(utcNow, os.time(os.date("!*t")))
@@ -20,6 +35,7 @@ function addtimeGMToffset_millisecond(tag, timestamp, record)
     record["time"] = math.floor((timestamp-offset)*1000)
     return 1, timestamp, record
 end
+
 function convert_resptime_s_to_ms_nginx(tag,timestamp,record)
     returnval = 0
     if record["upstream_response_time"] ~= nil and record["upstream_response_time"] ~= '' then
@@ -28,6 +44,7 @@ function convert_resptime_s_to_ms_nginx(tag,timestamp,record)
     end
     return returnval, timestamp, record
 end
+
 function cb_drop(tag, timestamp, record)
    if record["log"] == nil then
         returnval = 1
@@ -36,6 +53,7 @@ function cb_drop(tag, timestamp, record)
    end
    return returnval, timestamp, record
 end
+
 function parse_url_path_query(tag, timestamp, record)
     if record["path"] == nil or record["path"] == '' then
         returnval = 0
@@ -61,6 +79,7 @@ function parse_url_path_query(tag, timestamp, record)
     end
     return returnval, timestamp, record
 end
+
 function parse_url_path_id(tag, timestamp, record)
     if record["path"] == nil or record["path"] == '' then
         returnval = 0
@@ -80,6 +99,7 @@ function parse_url_path_id(tag, timestamp, record)
     end
     return returnval, timestamp, record
 end
+
 function parse_agent_browser(tag, timestamp, record)
     returnval = 0
     if record["browserField1"] == nil or record["browserField1"] == "" then
@@ -146,6 +166,7 @@ function checkGeoTags(tag, timestamp, record)
 
     return returnval, timestamp, record
 end
+
 function split(string_to_split)
     local words = {}
     count = 0
