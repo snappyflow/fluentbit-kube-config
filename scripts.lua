@@ -27,6 +27,13 @@ function generate_index_name(tag, timestamp, record)
     return returnval, timestamp, record
 end
 
+function postgres_general_transform(tag, timestamp, record)
+    if record["level"] ~= nil then
+        record["level"] = string.lower(record["level"])
+        return 1, timestamp, record
+    end
+end
+
 function mysql_error_transform(tag, timestamp, record)
     if record["level"] == nil or record["level"] == '' then
 	record["level"] = "info"
