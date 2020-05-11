@@ -1,8 +1,12 @@
+local VERSION = '20161109.21' -- version history at end of file
+local AUTHOR_NOTE = "-[ JSON.lua package by Jeffrey Friedl (http://regex.info/blog/lua/json) version 20161109.21 ]-"
+
 
 local OBJDEF = {
    VERSION      = VERSION,
    AUTHOR_NOTE  = AUTHOR_NOTE,
 }
+
 
 
 
@@ -927,5 +931,4 @@ function OBJDEF:new(args)
 end
 
 return OBJDEF:new()
-
 
