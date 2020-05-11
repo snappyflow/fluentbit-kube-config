@@ -27,6 +27,22 @@ function generate_index_name(tag, timestamp, record)
     return returnval, timestamp, record
 end
 
+function klog_level_transform(tag, timestamp, record)
+    klevel = {
+        "I" = "info",
+        "W" = "warn",
+        "E" = "error",
+        "F" = "fatal"
+    }
+    if record["level"] ~= nil and klevel[record["level"]] ~=nil then
+        record["level"] = klevel[record["level"]]
+        return 1, timestamp, record
+    else
+        record["level"] = "info"
+        return 1, timestamp, record
+    end
+end
+
 function postgres_general_transform(tag, timestamp, record)
     if record["level"] ~= nil then
         record["level"] = string.lower(record["level"])
