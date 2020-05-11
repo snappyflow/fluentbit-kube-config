@@ -93,7 +93,7 @@ end
 
 function convert_resptime_us_to_ms_apache(tag,timestamp,record)
     returnval = 0
-    if record["response_time"] ~= nil and record["response_time"] ~= '' then 
+    if record["response_time"] ~= nil and record["response_time"] ~= '' then
        record["response_time"] = record["response_time"] / 1000
        returnval = 1
     end
@@ -252,9 +252,9 @@ function split(string_to_split)
 end
 
 local function merge_log(record)
-  if record["message"] then
+  if record["multiline_message"] then
     local buff = {}
-    local str = record["message"]
+    local str = record["multiline_message"]
 
     -- init positions
     local pos, end_pos = 1, str.len(str)
@@ -280,7 +280,8 @@ local function merge_log(record)
 
     msg = table.concat(buff, "")
     -- Removing \n character
-    record["message"] = msg:gsub("\n"," ")
+    msg = msg:gsub("\n"," ")
+    record["multiline_message"] = msg:gsub("\t","")
   end
 
   return record
@@ -289,3 +290,4 @@ end
 function multiline_process(tag, timestamp, record)
   return 1, timestamp, merge_log(record)
 end
+
