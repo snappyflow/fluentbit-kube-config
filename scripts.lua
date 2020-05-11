@@ -22,8 +22,6 @@ function generate_index_name(tag, timestamp, record)
         returnval = 1
     elseif record["profileId"] ~=nil and record["cluster_name"] ~= nil and record["namespace_name"] == "kube-system" then
         record["index_name"] = "log" .. seperator .. record["profileId"] .. seperator .. record["cluster_name"]
-        record["_plugin"] = "kube-cluster"
-        record["_documentType"] = "cluster-logs"
         returnval = 1
     end
     return returnval, timestamp, record
