@@ -28,19 +28,18 @@ function generate_index_name(tag, timestamp, record)
 end
 
 function klog_level_transform(tag, timestamp, record)
-    klevel = {
-        "I" = "info",
-        "W" = "warn",
-        "E" = "error",
-        "F" = "fatal"
-    }
-    if record["level"] ~= nil and klevel[record["level"]] ~=nil then
-        record["level"] = klevel[record["level"]]
-        return 1, timestamp, record
+    if record["level"] == "I" then
+        record["level"] = "info"
+    elseif record["level"] == "W" then
+        record["level"] = "warn"
+    elseif record["level"] == "E" then
+        record["level"] = "error"
+    elseif record["level"] == "F" then
+        record["level"] = "fatal"
     else
         record["level"] = "info"
-        return 1, timestamp, record
     end
+    return 1, timestamp, record
 end
 
 function postgres_general_transform(tag, timestamp, record)
