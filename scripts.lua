@@ -20,7 +20,7 @@ function generate_index_name(tag, timestamp, record)
     if record["type"] ~=nil and record["profileId"] ~=nil and record["_tag_projectName"] ~=nil then
         record["index_name"] = record["type"] .. seperator .. record["profileId"] .. seperator .. record["_tag_projectName"]
         returnval = 1
-    elseif record["profileId"] ~=nil and record["cluster_name"] ~= nil and record["namespace_name"] == "kube-system" then
+    elseif record["profileId"] ~=nil and record["cluster_name"] ~= nil and record["_plugin"] == "kube-cluster" then
         record["index_name"] = "log" .. seperator .. record["profileId"] .. seperator .. record["cluster_name"]
         returnval = 1
     end
@@ -40,6 +40,35 @@ function klog_level_transform(tag, timestamp, record)
         record["level"] = "info"
     end
     return 1, timestamp, record
+end
+
+function addtime_millisecond(tag, timestamp, record)
+    record["time"] = math.floor((timestamp)*1000)
+    return 1, timestamp, record
+end
+
+
+function syslog_transform(tag, timestamp, record)
+    if record["level"] == nil or record["level"] == '' then
+        record["level"] = "info"
+    else
+        record["level"] = record["level"]:gsub("%s+", "")
+    end
+    return 1, timestamp, record
+end
+
+function syslog_parsing(tag, timestamp, record)
+    returnval = -1
+    if record["message"] == nil or record["message"] == '' then
+        returnval = -1
+    else
+        returnval = 1
+        loglevel = string.match(record["message"], '%[%s*%a+%s*%]')
+        if loglevel~= nil then
+            record["level"] = string.match(loglevel, '%a+')
+        end
+    end
+    return returnval, timestamp, record
 end
 
 function postgres_general_transform(tag, timestamp, record)
@@ -104,7 +133,7 @@ function addtimeGMToffset_millisecond(tag, timestamp, record)
     utcNow = os.time()
     offset = os.difftime(utcNow, os.time(os.date("!*t")))
     if os.date('*t')['isdst'] then
-                offset = offset + 3600
+        offset = offset + 3600
     end
     record["time"] = math.floor((timestamp-offset)*1000)
     return 1, timestamp, record
