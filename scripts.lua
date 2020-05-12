@@ -14,13 +14,21 @@ end
 --     return returnval, timestamp, record
 -- end
 
+function convert_to_unique_lowercase(str)
+    str=str:gsub("_","__")
+    return (str:gsub("%u", function(c) return '_' .. c:lower() end))
+end
+
+
 function generate_index_name(tag, timestamp, record)
     returnval = -1
     seperator = "-"
     if record["type"] ~=nil and record["profileId"] ~=nil and record["_tag_projectName"] ~=nil then
+        record["_tag_projectName"] = convert_to_unique_lowercase(record["_tag_projectName"])
         record["index_name"] = record["type"] .. seperator .. record["profileId"] .. seperator .. record["_tag_projectName"]
         returnval = 1
     elseif record["profileId"] ~=nil and record["cluster_name"] ~= nil and record["_plugin"] == "kube-cluster" then
+        record["cluster_name"] = convert_to_unique_lowercase(record["cluster_name"])
         record["index_name"] = "log" .. seperator .. record["profileId"] .. seperator .. record["cluster_name"]
         returnval = 1
     end
