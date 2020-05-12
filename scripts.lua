@@ -26,7 +26,7 @@ function generate_index_name(tag, timestamp, record)
     if record["type"] ~=nil and record["profileId"] ~=nil and record["_tag_projectName"] ~=nil then
         record["index_name"] = record["type"] .. seperator .. record["profileId"] .. seperator .. convert_to_unique_lowercase(record["_tag_projectName"])
         returnval = 1
-    elseif record["profileId"] ~=nil and record["cluster_name"] ~= nil and record["_plugin"] == "kube-cluster" then]
+    elseif record["profileId"] ~=nil and record["cluster_name"] ~= nil and record["_plugin"] == "kube-cluster" then
         record["index_name"] = "log" .. seperator .. record["profileId"] .. seperator .. convert_to_unique_lowercase(record["cluster_name"])
         returnval = 1
     end
