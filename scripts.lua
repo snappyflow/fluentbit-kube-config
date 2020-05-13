@@ -19,6 +19,48 @@ function convert_to_unique_lowercase(str)
     return (str:gsub("%u", function(c) return '_' .. c:lower() end))
 end
 
+function convertLevelCase(tag, timestamp, record)
+    returnval = 0
+    if record["level"] ~= nil then
+        record["level"]= string.gsub(record["level"], "%s", "")
+        record["level"]= string.lower(record["level"])
+        returnval = 1
+    end
+    return returnval, timestamp, record
+end
+
+function kafka_zookeeper_record_transform(tag,timestamp, record)
+    returnval = 0
+    initial_char=":"
+    if record["level"] == "warn" then
+        record["level"] = "warning"
+        returnval = 1
+    end
+    if record["process_id"] ~= nil then
+        opSplit = {}
+        i = 0
+        for token in string.gmatch(record["process_id"], '([^=]+)') do
+                opSplit[i] = token
+                 i = i +1
+        end
+        if opSplit[1] == nil then
+            record["process_id"] = opSplit[0]
+            return 1, timestamp, record
+        end
+        j = 0
+        for token in string.gmatch(opSplit[1], '([^ ]+)') do
+                opSplit[j] = token
+                 j = j +1
+        end
+        record["process_id"] = opSplit[0]
+        returnval = 1
+    end
+    if record["message"] ~= nil and record["message"]:sub(1, #initial_char) == initial_char then
+        record["message"] = string.sub(record["message"], 2)
+        returnval = 1
+    end
+    return returnval,timestamp, record
+end
 
 function generate_index_name(tag, timestamp, record)
     returnval = -1
