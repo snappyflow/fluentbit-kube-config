@@ -205,6 +205,14 @@ function cb_drop(tag, timestamp, record)
    return returnval, timestamp, record
 end
 
+function user_drop(tag, timestamp, record)
+    returnval = 0
+    if record["drop"] ~= nil then
+            returnval = -1
+    end
+    return returnval, timestamp, record
+end
+
 function parse_url_path_query(tag, timestamp, record)
     if record["path"] == nil or record["path"] == '' then
         returnval = 0
