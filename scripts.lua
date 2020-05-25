@@ -346,7 +346,7 @@ local function merge_log(record)
 
     local first_line = str:match("[^\n]+")
     pos = str.len(first_line) + 1
-    first_line_msg = str:match("[^\\n]+")
+    first_line_msg = str:match("[^\\\n]+")
     table.insert(buff,first_line_msg)
 
     -- trying to recursively JSON parse the rest of the string to extract the value of 'log'
