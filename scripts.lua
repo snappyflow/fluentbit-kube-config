@@ -14,6 +14,29 @@ end
 --     return returnval, timestamp, record
 -- end
 
+function mongod_transform(tag, timestamp, record)
+    returnval = 0
+    if record["level"] == "I" then
+        record["level"] = "info"
+        returnval = 1
+    elseif record["level"] == "W" then
+        record["level"] = "warning"
+        returnval = 1
+    elseif record["level"] == "E" then
+        record["level"] = "error"
+        returnval = 1
+    elseif record["level"] == "F" then
+        record["level"] = "fatal"
+        returnval = 1
+    elseif record["level"] == "D1" or record["level"] == "D2" or record["level"] == "D3" or record["level"] == "D4" or record["level"] == "D5" or record["level"] == "D" then
+        record["level"] = "debug"
+        returnval = 1
+
+    end
+
+    return returnval, timestamp, record
+end
+
 function convert_to_unique_lowercase(str)
     str=str:gsub("_","__")
     return (str:gsub("%u", function(c) return '_' .. c:lower() end))
@@ -376,4 +399,6 @@ end
 function multiline_process(tag, timestamp, record)
   return 1, timestamp, merge_log(record)
 end
+
+
 
