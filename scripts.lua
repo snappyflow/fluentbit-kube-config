@@ -14,6 +14,18 @@ end
 --     return returnval, timestamp, record
 -- end
 
+function haproxyParsing(tag, timestamp, record)
+    returnval = 0
+	if record["nonServer"] == nil then
+		record["nonServer"] = "null"
+		returnval = 1
+	elseif record["backendServer"] == nil then
+		record["backendServer"] = "null"
+		returnval = 1
+	end
+    return returnval, timestamp, record
+end
+
 function mongod_transform(tag, timestamp, record)
     returnval = 0
     if record["level"] == "I" then
