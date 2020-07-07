@@ -294,20 +294,95 @@ function parse_url_path_id(tag, timestamp, record)
     return returnval, timestamp, record
 end
 
+function agent_fields_cleanup(record)
+    if record["platform"] ~= nil then
+        record["platform"] = nil
+    end
+    if record["engine"] ~= nil then
+        record["engine"] = nil
+    end
+    if record["system"] ~= nil then
+        record["system"] = nil
+    end
+    if record["kit"] ~= nil then
+        record["kit"] = nil
+    end
+    if record["fields"] ~= nil then
+        record["fields"] = nil
+    end
+    if record["field1"] ~= nil then
+        record["field1"] = nil
+    end
+    if record["field2"] ~= nil then
+        record["field2"] = nil
+    end
+    if record["field3"] ~= nil then
+        record["field3"] = nil
+    end
+    if record["field4"] ~= nil then
+        record["field4"] = nil
+    end
+end
+
+function check_mobile(record)
+    if record["fields"] ~= nil then
+        if string.find(string.lower(record["fields"]),"mobile") then
+            return true
+        end
+    end 
+    return false
+end
+
 function parse_agent_browser(tag, timestamp, record)
-    returnval = 0
-    if record["browserField1"] == nil or record["browserField1"] == "" then
-        returnval = 1
-        record["browser"] = record["agent"]
-    elseif record["browserField3"] ~= nil and record["browserField3"] ~= "" then
-        returnval = 1
-        record["browser"] = record["browserField3"]
-    elseif record["browserField1"] == "Chrome" then
-        returnval = 1
-        record["browser"] = record["browserField1"]
-    else
-        returnval = 1
-        record["browser"] = record["browserField2"]
+    record["browser"] = "Others"
+    if record["fields"] ~= nil and (string.find(record["fields"],"Edge") or string.find(record["fields"],"Edge")) then
+        record["browser"] = "Edge"
+    elseif  record["fields"] ~= nil and string.find(record["fields"],"Chromium") then
+        record["browser"] = "Chromium"
+    elseif  record["fields"] ~= nil and string.find(record["fields"],"Focus") then
+        record["browser"] = "Firefox Focus"
+    elseif  record["fields"] ~= nil and string.find(record["fields"],"UCBrowser") then
+        record["browser"] = "UC Browser"
+    elseif  record["fields"] ~= nil and string.find(record["fields"],"BingWeb") then
+        record["browser"] = "Bing"
+    elseif  record["fields"] ~= nil and string.find(record["fields"],"Dolfin") then
+        record["browser"] = "Dolfin"
+    elseif  record["fields"] ~= nil and string.find(record["fields"],"MiuiBrowser") then
+        record["browser"] = "Miui Browser"
+    elseif  record["fields"] ~= nil and string.find(record["fields"],"VivoBrowser") then
+        record["browser"] = "Vivo Browser"
+    elseif  record["fields"] ~= nil and string.find(record["fields"],"Instagram") then
+        record["browser"] = "Instagram"
+    elseif  record["fields"] ~= nil and string.find(record["fields"],"Hawk") then
+        record["browser"] = "Hawk"
+    elseif record["fields"] ~= nil and string.find(record["fields"],"Firefox") then
+        record["browser"] = "Firefox"
+    elseif record["field1"] == nil and record["system"] ~= nil and string.find(record["system"],"MSIE") then
+        record["browser"] = "Internet Explorer"
+    -- Opera mini --
+    elseif record["system"] ~= nil and string.find(record["system"],"Opera Mini") then
+        record["browser"] = "Opera Mini"
+    -- Opera check --
+    elseif (record["fields"] ~= nil and string.find(record["fields"],"OPR")) or (record["engine"] ~= nil and string.find(record["engine"],"Opera")) then
+        record["browser"] = "Opera"
+    -- Safari Check --
+    elseif (record["fields"] ~= nil and record["field1"] == "Version" and (record["field2"] == "Safari" or record["field3"] == "Safari") and string.find(record["fields"],"Chrome") == nil) or (record["fields"] ~= nil and record["field1"] == "Safari" and string.find(record["fields"],"Chrome") == nil) then
+        record["browser"] = "Safari"
+    -- Chrome check --
+    elseif (record["fields"] ~= nil and record["field1"] == "Version" and record["field2"] == "Chrome" and record["field3"] == "Safari" and record["field4"] == nil) or (record["fields"] ~= nil and record["field1"] == "Chrome" and record["field2"] == "Safari" and record["field3"] == nil ) then
+        record["browser"] = "Chrome"
+    elseif record["agent"] ~= nil and string.find(string.lower(record["agent"]),"http") and string.find(string.lower(record["agent"]),"client") then
+        record["browser"] = "Http Client"
+    end
+
+    if check_mobile(record) and record["browser"] ~= "Others" then
+        record["browser"] = record["browser"] .. " " .. "Mobile"
+        record["mobile"] = "Yes"
+    end
+    agent_fields_cleanup(record)
+    returnval = 1
+    if record["log"] ~= nil then
+        returnval = 0
     end
     return returnval, timestamp, record
 end
