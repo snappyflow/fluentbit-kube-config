@@ -222,10 +222,22 @@ function addtimeGMToffset_millisecond(tag, timestamp, record)
     return 1, timestamp, record
 end
 
-function convert_resptime_s_to_ms_nginx(tag,timestamp,record)
+function convert_req_resp_time_s_to_ms_nginx(tag,timestamp,record)
     returnval = 0
     if record["upstream_response_time"] ~= nil and record["upstream_response_time"] ~= '' then
        record["upstream_response_time"] = record["upstream_response_time"] * 1000
+       returnval = 1
+    end
+    if record["upstream_header_time"] ~= nil and record["upstream_header_time"] ~= '' then
+       record["upstream_header_time"] = record["upstream_header_time"] * 1000
+       returnval = 1
+    end
+    if record["upstream_connect_time"] ~= nil and record["upstream_connect_time"] ~= '' then
+       record["upstream_connect_time"] = record["upstream_connect_time"] * 1000
+       returnval = 1
+    end
+    if record["request_time"] ~= nil and record["request_time"] ~= '' then
+       record["request_time"] = record["request_time"] * 1000
        returnval = 1
     end
     return returnval, timestamp, record
