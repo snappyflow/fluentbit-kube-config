@@ -399,21 +399,6 @@ function parse_agent_browser(tag, timestamp, record)
     return returnval, timestamp, record
 end
 
-function add_geoip_info(tag, timestamp, record)
-    if record["host"] == nil or record["host"] == "" then
-        returnval = 0
-    else
-        returnval = 1
-        cmd = io.popen("sh /etc/td-agent-bit/geoip/geoip.sh " .. record["host"])
-        for line in cmd:lines() do
-               size, metric = split(line)
-               record[metric[1]] = metric[2]
-        end
-        cmd:close()
-    end
-    return returnval, timestamp, record
-end
-
 function checkGeoTags(tag, timestamp, record)
     returnval = 0
     if record["country_name"] == nil or record["country_name"] == '' then
