@@ -104,6 +104,9 @@ function generate_index_name(tag, timestamp, record)
         record["index_name"] = record["type"] .. seperator .. record["profileId"] .. seperator .. convert_to_unique_lowercase(record["_tag_projectName"])
         returnval = 1
     elseif record["profileId"] ~=nil and record["cluster_name"] ~= nil and record["_plugin"] == "kube-cluster" then
+        if os.getenv("SFAPM_OP_MODE") == "kafka_rest_proxy" then
+            record["_cloudName"] = true
+        end
         record["index_name"] = "log" .. seperator .. record["profileId"] .. seperator .. convert_to_unique_lowercase(record["cluster_name"])
         returnval = 1
     end
