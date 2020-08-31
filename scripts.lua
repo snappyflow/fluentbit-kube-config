@@ -17,6 +17,7 @@ end
 function kube_doc_type(tag, timestamp, record)
     code= 0
     if record["_tag_containerName"] != nil then
+        code = 1
         if string.match(record["_tag_containerName"], "kube%-apiserver") then
             record["_documentType"] = "kube-apiserver"
         elseif string.match(record["_tag_containerName"], "kube%-controller%-manager") then
@@ -25,8 +26,11 @@ function kube_doc_type(tag, timestamp, record)
             record["_documentType"] = "kube-proxy"
         elseif string.match(record["_tag_containerName"], "kube%-scheduler") then
             record["_documentType"] = "kube-scheduler"
-        code = 1
+        else
+            code = 0
+        end
     elseif record["file"] != nil then
+        code = 1
         if string.match(record["file"], "kube%-apiserver") then
             record["_documentType"] = "kube-apiserver"
         elseif string.match(record["file"], "kube%-controller%-manager") then
@@ -39,7 +43,9 @@ function kube_doc_type(tag, timestamp, record)
             record["_documentType"] = "kube-scheduler"
         elseif string.match(record["file"], "kubelet") then
             record["_documentType"] = "kubelet"
-        code = 1
+        else
+            code = 0
+        end
     end
     return code, timestamp, record
 end
