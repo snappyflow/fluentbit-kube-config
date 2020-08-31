@@ -16,7 +16,7 @@ end
 
 function kube_doc_type(tag, timestamp, record)
     code= 0
-    if record["_tag_containerName"] != nil then
+    if record["_tag_containerName"] ~= nil then
         code = 1
         if string.match(record["_tag_containerName"], "kube%-apiserver") then
             record["_documentType"] = "kube-apiserver"
@@ -29,7 +29,7 @@ function kube_doc_type(tag, timestamp, record)
         else
             code = 0
         end
-    elseif record["file"] != nil then
+    elseif record["file"] ~= nil then
         code = 1
         if string.match(record["file"], "kube%-apiserver") then
             record["_documentType"] = "kube-apiserver"
