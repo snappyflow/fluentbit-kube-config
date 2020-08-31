@@ -17,27 +17,25 @@ end
 function kube_doc_type(tag, timestamp, record)
     code= 0
     if record["_tag_containerName"] != nil then
-        if string.match(record["_tag_containerName"], "kube-apiserver") then
+        if string.match(record["_tag_containerName"], "kube%-apiserver") then
             record["_documentType"] = "kube-apiserver"
-        elseif string.match(record["_tag_containerName"], "kube-controller-manager") then
+        elseif string.match(record["_tag_containerName"], "kube%-controller%-manager") then
             record["_documentType"] = "kube-controller-manager"
-        elseif string.match(record["_tag_containerName"], "kube-proxy") then
+        elseif string.match(record["_tag_containerName"], "kube%-proxy") then
             record["_documentType"] = "kube-proxy"
-        elseif string.match(record["_tag_containerName"], "kube-scheduler") then
-            record["_documentType"] = "kube-scheduler"
-        elseif string.match(record["_tag_containerName"], "kube-scheduler") then
+        elseif string.match(record["_tag_containerName"], "kube%-scheduler") then
             record["_documentType"] = "kube-scheduler"
         code = 1
     elseif record["file"] != nil then
-        if string.match(record["file"], "kube-apiserver") then
+        if string.match(record["file"], "kube%-apiserver") then
             record["_documentType"] = "kube-apiserver"
-        elseif string.match(record["file"], "kube-controller-manager") then
+        elseif string.match(record["file"], "kube%-controller%-manager") then
             record["_documentType"] = "kube-controller-manager"
-        elseif string.match(record["file"], "kube-proxy") then
+        elseif string.match(record["file"], "kube%-proxy") then
             record["_documentType"] = "kube-proxy"
-        elseif string.match(record["file"], "kube-scheduler") then
+        elseif string.match(record["file"], "kube%-scheduler") then
             record["_documentType"] = "kube-scheduler"
-        elseif string.match(record["file"], "kube-scheduler") then
+        elseif string.match(record["file"], "kube%-scheduler") then
             record["_documentType"] = "kube-scheduler"
         elseif string.match(record["file"], "kubelet") then
             record["_documentType"] = "kubelet"
