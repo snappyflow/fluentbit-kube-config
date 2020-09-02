@@ -384,6 +384,42 @@ function check_mobile(record)
     return false
 end
 
+function redis_handle_log_level_notation(tag, timestamp, record)
+    if record["level"] == "*" then
+        record["level"] = "notice"
+        returnval = 1
+    elseif record["level"] == "#" then
+        record["level"] = "warning"
+        returnval = 1
+    elseif record["level"] == "-" then
+        record["level"] = "verbose"
+        returnval = 1
+    else 
+        returnval = 0
+    end
+    return returnval, timestamp, record
+end
+
+function redis_handle_cluster_role_notation(tag, timestamp, record)
+    if record["redisRole"] == "X" then
+        record["redisRole"] = "notice"
+        returnval = 1
+    elseif record["redisRole"] == "C" then
+        record["redisRole"] = "warning"
+        returnval = 1
+    elseif record["redisRole"] == "S" then
+        record["redisRole"] = "verbose"
+        returnval = 1
+    elseif record["redisRole"] == "M" then
+        record["redisRole"] = "master"
+        returnval = 1
+    else 
+        returnval = 0
+    end
+    return returnval, timestamp, record
+end
+    
+    
 function parse_agent_browser(tag, timestamp, record)
     record["browser"] = "Others"
     if record["fields"] ~= nil and (string.find(record["fields"],"Edge") or string.find(record["fields"],"Edge")) then
@@ -522,6 +558,5 @@ end
 function multiline_process(tag, timestamp, record)
   return 1, timestamp, merge_log(record)
 end
-
 
 
